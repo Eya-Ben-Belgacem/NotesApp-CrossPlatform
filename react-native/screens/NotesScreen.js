@@ -5,9 +5,9 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Modal,
-  TextInput,
 } from "react-native";
+import NoteItem from "../components/NoteItem";
+import NoteInput from "../components/NoteInput";
 
 // Sample initial notes data
 const initialNotes = [
@@ -29,8 +29,8 @@ export default function NotesScreen() {
   const [noteText, setNoteText] = useState("");
   const [editingNote, setEditingNote] = useState(null);
 
-  // Function to add a new note
-  const addNote = () => {
+  // Function to add or update a note
+  const saveNote = () => {
     if (noteText.trim() === "") return;
 
     if (editingNote) {
@@ -73,20 +73,12 @@ export default function NotesScreen() {
     setModalVisible(true);
   };
 
-  // Note item component
-  const renderNote = ({ item }) => (
-    <View style={styles.noteItem}>
-      <Text style={styles.noteContent}>{item.content}</Text>
-      <View style={styles.noteActions}>
-        <TouchableOpacity onPress={() => editNote(item)}>
-          <Text style={styles.editButton}>Edit</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => deleteNote(item.id)}>
-          <Text style={styles.deleteButton}>Delete</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+  // Function to close the modal
+  const closeModal = () => {
+    setModalVisible(false);
+    setNoteText("");
+    setEditingNote(null);
+  };
 
   return (
     <View style={styles.container}>
@@ -94,11 +86,7 @@ export default function NotesScreen() {
         <Text style={styles.headerTitle}>My Notes</Text>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => {
-            setEditingNote(null);
-            setNoteText("");
-            setModalVisible(true);
-          }}
+          onPress={() => setModalVisible(true)}
         >
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
@@ -107,7 +95,9 @@ export default function NotesScreen() {
       {notes.length > 0 ? (
         <FlatList
           data={notes}
-          renderItem={renderNote}
+          renderItem={({ item }) => (
+            <NoteItem note={item} onEdit={editNote} onDelete={deleteNote} />
+          )}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.notesList}
         />
@@ -117,46 +107,14 @@ export default function NotesScreen() {
         </View>
       )}
 
-      {/* Modal for adding/editing notes */}
-      <Modal
-        animationType="slide"
-        transparent={true}
+      <NoteInput
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
-              {editingNote ? "Edit Note" : "Add New Note"}
-            </Text>
-
-            <TextInput
-              style={styles.textInput}
-              multiline
-              placeholder="Enter your note here..."
-              value={noteText}
-              onChangeText={setNoteText}
-              autoFocus
-            />
-
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={styles.buttonText}>Cancel</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.modalButton, styles.saveButton]}
-                onPress={addNote}
-              >
-                <Text style={styles.buttonText}>Save</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        onClose={closeModal}
+        onSave={saveNote}
+        noteText={noteText}
+        setNoteText={setNoteText}
+        isEditing={!!editingNote}
+      />
     </View>
   );
 }
@@ -197,32 +155,6 @@ const styles = StyleSheet.create({
   notesList: {
     padding: 15,
   },
-  noteItem: {
-    backgroundColor: "white",
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  noteContent: {
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  noteActions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-  },
-  editButton: {
-    color: "#3498db",
-    marginRight: 15,
-  },
-  deleteButton: {
-    color: "#e74c3c",
-  },
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
@@ -231,56 +163,5 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     color: "#7f8c8d",
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    width: "80%",
-    backgroundColor: "white",
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 15,
-  },
-  textInput: {
-    height: 150,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 6,
-    padding: 10,
-    marginBottom: 20,
-    textAlignVertical: "top",
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-  },
-  modalButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 6,
-    marginLeft: 10,
-  },
-  cancelButton: {
-    backgroundColor: "#95a5a6",
-  },
-  saveButton: {
-    backgroundColor: "#3498db",
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "bold",
   },
 });

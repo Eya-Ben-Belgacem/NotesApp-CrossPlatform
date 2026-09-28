@@ -1,11 +1,17 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-export default function StyleDemo() {
+export default function LayoutDemo() {
   return (
     <View style={styles.container}>
-      <View style={styles.box}>
-        <Text style={styles.text}>Styled Component</Text>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Header</Text>
+      </View>
+      <View style={styles.content}>
+        <Text style={styles.contentText}>Content</Text>
+      </View>
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Footer</Text>
       </View>
     </View>
   );
@@ -14,26 +20,37 @@ export default function StyleDemo() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f5f5f5",
+    flexDirection: "column",
   },
-  box: {
-    width: 200,
-    height: 200,
+  header: {
+    height: 80,
     backgroundColor: "#3498db",
-    borderRadius: 10,
-    alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    alignItems: "center",
+    paddingTop: 30,
   },
-  text: {
+  headerText: {
     color: "white",
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
+  },
+  content: {
+    flex: 1,
+    backgroundColor: "#ecf0f1",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  contentText: {
+    fontSize: 18,
+  },
+  footer: {
+    height: 60,
+    backgroundColor: "#2c3e50",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  footerText: {
+    color: "white",
+    fontSize: 16,
   },
 });

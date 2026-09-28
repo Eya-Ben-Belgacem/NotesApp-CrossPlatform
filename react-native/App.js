@@ -1,56 +1,34 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import HomeScreen from "./screens/HomeScreen";
+import NotesScreen from "./screens/NotesScreen";
 
-export default function LayoutDemo() {
+const Stack = createStackNavigator();
+
+export default function App() {
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Header</Text>
-      </View>
-      <View style={styles.content}>
-        <Text style={styles.contentText}>Content</Text>
-      </View>
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Footer</Text>
-      </View>
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            title: "Notes App",
+            headerStyle: {
+              backgroundColor: "#f4511e",
+            },
+            headerTintColor: "#fff",
+          }}
+        />
+        <Stack.Screen
+          name="Notes"
+          component={NotesScreen}
+          options={{
+            title: "My Notes",
+          }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "column",
-  },
-  header: {
-    height: 80,
-    backgroundColor: "#3498db",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingTop: 30,
-  },
-  headerText: {
-    color: "white",
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  content: {
-    flex: 1,
-    backgroundColor: "#ecf0f1",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  contentText: {
-    fontSize: 18,
-  },
-  footer: {
-    height: 60,
-    backgroundColor: "#2c3e50",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  footerText: {
-    color: "white",
-    fontSize: 16,
-  },
-});

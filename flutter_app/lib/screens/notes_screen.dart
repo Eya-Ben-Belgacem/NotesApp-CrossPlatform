@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../components/note_item.dart';
+import '../components/note_input_dialog.dart';
 
 class NotesScreen extends StatefulWidget {
   const NotesScreen({super.key});
@@ -67,33 +69,14 @@ class _NotesScreenState extends State<NotesScreen> {
     showNoteDialog();
   }
 
-  // Boîte de dialogue ajout / modification
+  // Afficher la boîte de dialogue (widget réutilisable)
   void showNoteDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(editingNote != null ? 'Edit Note' : 'Add New Note'),
-        content: TextField(
-          controller: noteController,
-          decoration: const InputDecoration(
-            hintText: 'Enter your note here...',
-            border: OutlineInputBorder(),
-          ),
-          maxLines: 5,
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(foregroundColor: Colors.grey),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: addNote,
-            style: TextButton.styleFrom(foregroundColor: Colors.blue),
-            child: const Text('Save'),
-          ),
-        ],
+      builder: (context) => NoteInputDialog(
+        controller: noteController,
+        isEditing: editingNote != null,
+        onSave: addNote,
       ),
     );
   }
@@ -157,51 +140,10 @@ class _NotesScreenState extends State<NotesScreen> {
                     itemCount: notes.length,
                     itemBuilder: (context, index) {
                       final note = notes[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(15),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                note['content'],
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                              const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  TextButton(
-                                    onPressed: () => editNote(note),
-                                    child: const Text(
-                                      'Edit',
-                                      style: TextStyle(color: Colors.blue),
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () => deleteNote(note['id']),
-                                    child: const Text(
-                                      'Delete',
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                      return NoteItem(
+                        note: note,
+                        onEdit: () => editNote(note),
+                        onDelete: () => deleteNote(note['id']),
                       );
                     },
                   )

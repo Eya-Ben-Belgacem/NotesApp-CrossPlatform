@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'demos/layout_demo.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -9,15 +11,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text(
-            'Hello, Flutter!',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-        ),
-      ),
-    );
+    return const MaterialApp(home: LayoutDemo());
   }
 }

@@ -9,12 +9,17 @@ import {
   View,
 } from 'react-native';
 
+import { EmptyState } from '../components/EmptyState';
 import { NoteInputModal, type NoteDraft } from '../components/NoteInputModal';
 import { NoteItem } from '../components/NoteItem';
+import { useAuth } from '../context/AuthContext';
 import { addNote, deleteNote, listNotes, updateNote } from '../lib/notesService';
 import type { Note } from '../types';
 
 export default function NotesScreen() {
+  // La route est protégée : un utilisateur existe toujours sur cet écran
+  const userId = useAuth().user!.$id;
+
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -26,21 +31,19 @@ export default function NotesScreen() {
     Alert.alert(title, message);
   };
 
-  // Lecture : récupère les notes depuis Appwrite
+  // Lecture : récupère les notes de l'utilisateur connecté
   const load = useCallback(async () => {
     try {
-      setNotes(await listNotes());
+      setNotes(await listNotes(userId));
     } catch (e) {
       showError('Chargement impossible', e);
     }
-  }, []);
+  }, [userId]);
 
-  // Au premier affichage de l'écran
   useEffect(() => {
     load().finally(() => setLoading(false));
   }, [load]);
 
-  // Tirer la liste vers le bas pour la recharger
   const onRefresh = async () => {
     setRefreshing(true);
     await load();
@@ -51,13 +54,13 @@ export default function NotesScreen() {
   const save = async (draft: NoteDraft) => {
     try {
       if (editing === 'new') {
-        const created = await addNote(draft.title, draft.content);
+        const created = await addNote(userId, draft.title, draft.content);
         setNotes((prev) => [created, ...prev]);
       } else if (editing) {
         const updated = await updateNote(editing.id, draft.title, draft.content);
         setNotes((prev) => prev.map((n) => (n.id === updated.id ? updated : n)));
       }
-      setEditing(null); // on ferme la fenêtre seulement si l'enregistrement a réussi
+      setEditing(null);
     } catch (e) {
       showError('Enregistrement impossible', e);
     }
@@ -84,7 +87,7 @@ export default function NotesScreen() {
           contentContainerStyle={styles.list}
           refreshing={refreshing}
           onRefresh={onRefresh}
-          ListEmptyComponent={<Text style={styles.empty}>No notes yet.</Text>}
+          ListEmptyComponent={<EmptyState onCreate={() => setEditing('new')} />}
           renderItem={({ item }) => (
             <NoteItem note={item} onEdit={setEditing} onDelete={remove} />
           )}
@@ -113,7 +116,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   loader: { marginTop: 48 },
   list: { padding: 16, gap: 12 },
-  empty: { textAlign: 'center', color: '#60646c' },
   fab: {
     position: 'absolute',
     right: 20,

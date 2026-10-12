@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/note.dart';
+import '../providers/auth_provider.dart';
 import '../services/notes_service.dart' as service;
 import '../widgets/note_input_dialog.dart';
 import '../widgets/note_item.dart';
@@ -82,16 +84,36 @@ class _NotesScreenState extends State<NotesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Notes')),
+      appBar: AppBar(
+        title: const Text('My Notes'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sign out',
+            onPressed: () => context.read<AuthProvider>().signOut(),
+          ),
+        ],
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _load,
               child: _notes.isEmpty
-                  ? ListView(
-                      children: const [
-                        SizedBox(height: 120),
-                        Center(child: Text('No notes yet.')),
+                                    ? ListView(
+                      children: [
+                        const SizedBox(height: 120),
+                        Column(
+                          children: [
+                            const Icon(Icons.note_alt_outlined, size: 64),
+                            const SizedBox(height: 12),
+                            const Text('No notes yet'),
+                            const SizedBox(height: 16),
+                            FilledButton(
+                              onPressed: _add,
+                              child: const Text('Create a note'),
+                            ),
+                          ],
+                        ),
                       ],
                     )
                   : ListView.builder(

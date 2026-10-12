@@ -1,5 +1,5 @@
 import 'react-native-url-polyfill/auto';
-import { Client, TablesDB, ID, Query } from 'react-native-appwrite';
+import { Account, Client, TablesDB, ID, Query, Permission, Role } from 'react-native-appwrite';
 
 const endpoint = process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT!;
 const projectId = process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!;
@@ -14,4 +14,5 @@ const client = new Client()
   .setPlatform(platform);
 
 export const tablesDB = new TablesDB(client);
-export { ID, Query };
+export const account = new Account(client);
+export { ID, Query, Permission, Role };

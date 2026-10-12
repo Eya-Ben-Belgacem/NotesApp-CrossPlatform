@@ -4,28 +4,43 @@ import 'package:appwrite/models.dart' as models;
 import '../appwrite_client.dart';
 import '../models/note.dart';
 
-// Transforme une ligne Appwrite en Note de l'application
 Note _toNote(models.Row row) => Note(
-  id: row.$id,
-  title: (row.data['title'] ?? '') as String,
-  content: (row.data['content'] ?? '') as String,
-);
+      id: row.$id,
+      title: row.data['title'] as String? ?? '',
+      content: row.data['content'] as String? ?? '',
+    );
 
+// Lecture : uniquement les notes de l'utilisateur connecté
 Future<List<Note>> listNotes() async {
+  final user = await account.get();
   final result = await tablesDB.listRows(
     databaseId: appwriteDatabaseId,
     tableId: appwriteTableId,
-    queries: [Query.orderDesc('\$createdAt')],
+    queries: [
+      Query.equal('userId', user.$id),
+      Query.orderDesc(r'$createdAt'),
+    ],
   );
   return result.rows.map(_toNote).toList();
 }
 
+// Création : on stocke userId + permissions réservées au propriétaire
 Future<Note> addNote(NoteDraft draft) async {
+  final user = await account.get();
   final row = await tablesDB.createRow(
     databaseId: appwriteDatabaseId,
     tableId: appwriteTableId,
     rowId: ID.unique(),
-    data: {'title': draft.title, 'content': draft.content},
+    data: {
+      'title': draft.title,
+      'content': draft.content,
+      'userId': user.$id,
+    },
+    permissions: [
+      Permission.read(Role.user(user.$id)),
+      Permission.update(Role.user(user.$id)),
+      Permission.delete(Role.user(user.$id)),
+    ],
   );
   return _toNote(row);
 }

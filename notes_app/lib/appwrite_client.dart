@@ -11,3 +11,4 @@ final Client client = Client()
   ..setProject(appwriteProjectId);
 
 final TablesDB tablesDB = TablesDB(client);
+final Account account = Account(client);

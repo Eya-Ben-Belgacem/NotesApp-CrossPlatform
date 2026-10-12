@@ -1,5 +1,5 @@
+import { tablesDB, DATABASE_ID, TABLE_ID, ID, Query, Permission, Role } from './appwrite';
 import type { Note } from '../types';
-import { DATABASE_ID, ID, Query, TABLE_ID, tablesDB } from './appwrite';
 
 // Transforme une ligne Appwrite ($id, title, content...) en Note de l'application
 function toNote(row: any): Note {
@@ -10,21 +10,27 @@ function toNote(row: any): Note {
   };
 }
 
-export async function listNotes(): Promise<Note[]> {
+export async function listNotes(userId: string): Promise<Note[]> {
   const res = await tablesDB.listRows({
     databaseId: DATABASE_ID,
     tableId: TABLE_ID,
-    queries: [Query.orderDesc('$createdAt')],
+    queries: [Query.equal('userId', userId), Query.orderDesc('$createdAt')],
   });
   return res.rows.map(toNote);
 }
 
-export async function addNote(title: string, content: string): Promise<Note> {
+export async function addNote(userId: string, title: string, content: string): Promise<Note> {
   const row = await tablesDB.createRow({
     databaseId: DATABASE_ID,
     tableId: TABLE_ID,
     rowId: ID.unique(),
-    data: { title, content },
+    data: { title, content, userId },
+    // Seul le propriétaire peut lire, modifier ou supprimer cette note
+    permissions: [
+      Permission.read(Role.user(userId)),
+      Permission.update(Role.user(userId)),
+      Permission.delete(Role.user(userId)),
+    ],
   });
   return toNote(row);
 }

@@ -1,6 +1,8 @@
 import { Link } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { listNotes } from '../lib/notesService';
+
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
